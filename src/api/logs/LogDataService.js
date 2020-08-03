@@ -6,7 +6,7 @@ class LogDataService {
         return axios.get(`http://localhost:8081/logs`);
     }
 
-    retrieveLog(caseNumber) {
+    retrieveLogs(caseNumber) {
         return axios.get(`http://localhost:8081/logs/${caseNumber}`)
     }
 }
