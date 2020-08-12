@@ -1,23 +1,24 @@
-import React, { Component } from 'react'
-import { Row, Container, ListGroup, ListGroupItem, Button, Card } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Row, Container, ListGroup, ListGroupItem, Card } from 'react-bootstrap'
 import LogDataService from '../../api/logs/LogDataService.js'
+import React, { Component } from 'react'
 
-export class ListLogsComponent extends Component {
+class LogComponent extends Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
-            logs: []
-        };
-        this.getLogs = this.getLogs.bind(this)
+            logs: [],
+            id: this.props.match.params.id
+        }
+
+        this.onSubmit = this.onSubmit.bind(this)
     }
 
     componentDidMount() {
-        this.getLogs();
+        this.refreshLogs()
     }
 
-    getLogs() {
-        LogDataService.retrieveAllLogs()
+    refreshLogs() {
+        LogDataService.retrieveLogs(this.state.id)
             .then(
                 response => {
                     this.setState({ logs: response.data })
@@ -25,28 +26,30 @@ export class ListLogsComponent extends Component {
             )
     }
 
+    onSubmit(values) {
+        console.log(values)
+    }
+
     render() {
         return (
             <div>
-                <h1 style={{ marginTop: '25px', marginBottom: '25px' }}>Police Case Logs</h1>
+                <h1 style={{ marginTop: '25px', marginBottom: '25px' }}>Case Number: {this.state.id}</h1>
                 <div className="container">
                     <Container fluid>
-                        <Row>
+                        <Row fluid>
                             {this.state.logs.map(
                                 log =>
                                     <div style={{ width: '33%' }}>
-                                        <Card style={{ width: '18rem', marginTop: '25px', marginBottom: '25px' }}>
+                                        <Card style={{ width: '18rem' }}>
                                             <Card.Body>
-                                                <Card.Title><u>Case:</u> {log.caseNumber}</Card.Title>
-                                                <Card.Subtitle style={{ marginBottom: '10px' }}><u>Location:</u> {log.location}</Card.Subtitle>
+                                                <Card.Title><u>Location:</u> {log.location}</Card.Title>
                                                 <Card.Subtitle style={{ marginBottom: '10px' }}><u>Reported on:</u> {log.reportedDate}</Card.Subtitle>
 
                                                 <ListGroup className="list-group-flush">
                                                     <ListGroupItem><u>Offense Desc:</u> {log.offenseDesc}</ListGroupItem>
                                                     <ListGroupItem><u>Statute Code:</u> {log.statuteCode}</ListGroupItem>
-                                                    <ListGroupItem>{log.statuteDesc}</ListGroupItem>
+                                                    <ListGroupItem><u>Statute Desc:</u> {log.statuteDesc}</ListGroupItem>
                                                 </ListGroup>
-                                                <Link to={`/logs/${log.caseNumber}`}><Button style={{ marginTop: '10px', marginBottom: '-10px' }} className="caselog-card" variant="info">Search Casenumber</Button></Link>
                                             </Card.Body>
                                         </Card>
                                     </div>
@@ -54,10 +57,11 @@ export class ListLogsComponent extends Component {
                         </Row>
                     </Container>
                 </div>
+            </div>
+        )
 
-            </div >
-        );
+
     }
 }
 
-export default ListLogsComponent
+export default LogComponent

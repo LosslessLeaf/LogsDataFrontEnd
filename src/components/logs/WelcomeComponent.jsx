@@ -21,9 +21,11 @@ export class WelcomeComponent extends Component {
                 {this.state.error && <div className="container">
                     {this.state.welcomeMessage}
                 </div>}
-                <h1>Welcome!</h1>
                 <div className="container">
-                    Welcome {this.props.match.params.name}. You can check out the case logs <Link to="/logs">here!</Link>
+                    <h1 style={{ marginTop: '25px', marginBottom: '25px' }}>
+                        Welcome {this.props.match.params.name}. You can check out the case logs <Link to="/logs">here!</Link>
+
+                    </h1>
                 </div>
                 {!this.state.error && <div className="container">
                     {this.state.welcomeMessage}
