@@ -1,38 +1,92 @@
 import React, { Component } from 'react'
 import { Row, Container, ListGroup, ListGroupItem, Button, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import LogDataService from '../../api/logs/LogDataService.js'
 
 export class ListLogsComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            logs: []
+            logs: [],
+            currentPage: 1,
+            postsPerPage: 9
         };
-        this.getLogs = this.getLogs.bind(this)
     }
 
     componentDidMount() {
-        this.getLogs();
-    }
+        if (localStorage.getItem('logs') != null) {
 
-    getLogs() {
-        LogDataService.retrieveAllLogs()
-            .then(
-                response => {
-                    this.setState({ logs: response.data })
-                }
-            )
+            setTimeout(() => {
+                //     // this.setState({ logs: this.props.logs })
+                //     localStorage.setItem('logs', this.props.logs);
+                this.setState({ logs: JSON.parse(localStorage.getItem('logs')) });
+            }, 1000);
+        }
     }
 
     render() {
+
+        // Get current posts
+
+        const indexOfLastPost = this.state.currentPage * this.state.postsPerPage;
+        const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
+        const currentPosts = this.state.logs.slice(indexOfFirstPost, indexOfLastPost);
+        const pageNumbers = [];
+
+        for (let i = this.state.currentPage; i <= Math.ceil(this.state.logs.length / this.state.postsPerPage); i++) {
+            if (this.state.currentPage !== 1 && i - 3 === this.state.currentPage - 3) {
+                pageNumbers.push("↞");
+            }
+            if (this.state.currentPage !== 1 && i - 2 === this.state.currentPage - 2) {
+                pageNumbers.push(1);
+            }
+            if (this.state.currentPage !== 1 && i - 1 === this.state.currentPage - 1) {
+                pageNumbers.push("...");
+            }
+            if (i < this.state.currentPage + 8) {
+                pageNumbers.push(i);
+            }
+            if (i === this.state.currentPage + 8) {
+                pageNumbers.push("...")
+            }
+            if (i === this.state.currentPage + 9) {
+                pageNumbers.push(Math.ceil(this.state.logs.length / this.state.postsPerPage))
+            }
+            if (i === this.state.currentPage + 10) {
+                pageNumbers.push("↠");
+            }
+            // if (i > 10) {
+
+            // }
+            // if (i === this.state.postsPerPage - 1) {
+            //     pageNumbers.push(i);
+            // }
+            // pageNumbers.push(i);
+
+        }
+
+        // Change page
+
+        const paginate = (pageNumber) => {
+            if (isNaN(pageNumber) !== true) {
+                this.setState({ currentPage: pageNumber });
+            } else if (pageNumber === "↞") {
+                this.setState({ currentPage: this.state.currentPage - 1 })
+            } else if (pageNumber === "↠") {
+                this.setState({ currentPage: this.state.currentPage + 1 })
+            }
+            //  else {
+            //     this.setState({ currentPage: this.state.currentPage + 8 })
+            // }
+        }
         return (
             <div>
                 <h1 style={{ marginTop: '25px', marginBottom: '25px' }}>Police Case Logs</h1>
-                <div className="container">
+
+
+                {currentPosts && <div className="container">
                     <Container fluid>
                         <Row>
-                            {this.state.logs.map(
+                            {currentPosts.map(
                                 log =>
                                     <div style={{ width: '33%' }}>
                                         <Card style={{ width: '18rem', marginTop: '25px', marginBottom: '25px' }}>
@@ -52,9 +106,21 @@ export class ListLogsComponent extends Component {
                                     </div>
                             )}
                         </Row>
+                        <nav style={{ display: 'flex', justifyContent: 'center' }}>
+                            <ul className="pagination">
+                                {pageNumbers.map(number => (
+                                    <li key={number} className="page-item">
+                                        <button onClick={() => paginate(number)} className="page-link" style={{ width: '75px', height: '50px' }}>
+                                            {number === this.state.currentPage && <span style={{ fontSize: '2em' }}>{number}</span>}
+                                            {number !== this.state.currentPage && number
+                                            }
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
                     </Container>
-                </div>
-
+                </div>}
             </div >
         );
     }
